@@ -11,4 +11,4 @@
 | Solicitação  (alocação) de  recurso | | | 
 | Liberação  de  recurso        | | | 
 | Identificação do grupo        | | | 
-| Relatório                     | | | 
+| **Relatório**                 | | | 
