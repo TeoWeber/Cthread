@@ -4,11 +4,11 @@
 
 | ATIVIDADE     | Quem?   | Pronta?   |
 | ------------- | ------------- | ------------- | 
-| Cedência  voluntária  da  CPU | Teo | | 
-| Sincronização  de  término    | | | 
-| Sincronização  de  controle   | | | 
-| Inicialização  de  semáforo   | | | 
-| Solicitação  (alocação) de  recurso | | | 
-| Liberação  de  recurso        | | | 
-| Identificação do grupo        | | | 
-| **Relatório**                 | | | 
+| Cedência  voluntária  da  CPU | Teo | N | 
+| Sincronização  de  término    | | N | 
+| Sincronização  de  controle   | | N | 
+| Inicialização  de  semáforo   | | N | 
+| Solicitação  (alocação) de  recurso | | N | 
+| Liberação  de  recurso        | | N | 
+| Identificação do grupo        | | N | 
+| **Relatório**                 | | N | 
