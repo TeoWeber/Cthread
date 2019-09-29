@@ -4,6 +4,7 @@
 
 | ATIVIDADE     | Quem?   | Pronta?   |
 | ------------- | ------------- | ------------- | 
+| Criação de uma thread         | Julia | N |
 | Cedência  voluntária  da  CPU | Teo | N | 
 | Sincronização  de  término    | | N | 
 | Sincronização  de  controle   | | N | 
