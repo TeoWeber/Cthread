@@ -11,5 +11,5 @@
 | Inicialização  de  semáforo   | | N | 
 | Solicitação  (alocação) de  recurso | | N | 
 | Liberação  de  recurso        | | N | 
-| Identificação do grupo        | | N | 
+| Identificação do grupo        | Julia | S | 
 | **Relatório**                 | | N | 
