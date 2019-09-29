@@ -2,14 +2,15 @@
 
 # Lista de Tarefas #
 
-| ATIVIDADE     | Quem?   | Pronta?   |
-| ------------- | ------------- | ------------- | 
-| Criação de uma thread         | Julia | N |
-| Cedência  voluntária  da  CPU | Teo | N | 
-| Sincronização  de  término    | | N | 
-| Sincronização  de  controle   | | N | 
-| Inicialização  de  semáforo   | | N | 
-| Solicitação  (alocação) de  recurso | | N | 
-| Liberação  de  recurso        | | N | 
-| Identificação do grupo        | | N | 
-| **Relatório**                 | | N | 
+| ATIVIDADE     | Quem?                   | Pronta?   |
+| ------------- | ----------------------- | ------------- | 
+| Criação de uma thread (ccreate)         | Julia | N |
+| Cedência  voluntária  da  CPU (cyield)  | Teo | N | 
+| Sincronização  de  término (cjoin)      | | N | 
+| Sincronização  de  controle (?)         | | N | 
+| Inicialização  de  semáforo (csem_init) | | N | 
+| Solicitação de  recurso (cwait)         | | N | 
+| Liberação  de  recurso (csignal)        | | N | 
+| Identificação do grupo (cidentify)      | Julia | S |
+
+*Possivelmente mais funções além dessas
