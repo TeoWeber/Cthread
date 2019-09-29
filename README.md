@@ -11,19 +11,6 @@
 | Inicialização  de  semáforo (csem_init) | | N | 
 | Solicitação de  recurso (cwait)         | | N | 
 | Liberação  de  recurso (csignal)        | | N | 
-| Identificação do grupo (cidentify)      | Julia | S | 
-| support.h: CreateFila2()                | Julia | N |
-| support.h: FirstFila2()                 | Julia | N |
-| support.h: LastFila2()                  | Julia | N |
-| support.h: NextFila2()                  | | N |
-| support.h: GetAtIteratorFila2()         | | N |
-| support.h: GetAtNextIteratorFila2()     | | N | 
-| support.h: GetAtAntIteratorFila2()      | | N |
-| support.h: AppendFila2()                | | N |
-| support.h: InsertAfterIteratorFila2()   | | N |
-| support.h: InsertBeforeIteratorFila2()  | | N |
-| support.h: DeleteAtIteratorFila2()      | | N |
-| support.h: startTimer()                 | | N |
-| **Relatório**                           | | N | 
+| Identificação do grupo (cidentify)      | Julia | S |
 
 *Possivelmente mais funções além dessas
