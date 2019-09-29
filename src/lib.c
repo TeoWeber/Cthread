@@ -5,9 +5,36 @@
 #include "../include/cthread.h"
 #include "../include/cdata.h"
 
+#define STACK_SS_SIZE 64000
+#define SUCCESS 0;
+#define CIDENTIFY_SIZE_ERROR -1;
+
+int last_tid = 0;
+FILA2 ready_queue;
 
 int ccreate (void* (*start)(void*), void *arg, int prio) {
-	return -1;
+	CreateFila2(&ready_queue);
+
+	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
+	
+	tcb->tid = last_tid;
+	last_tid++;
+	tcb->state = PROCST_APTO;
+	tcb->prio = prio;
+	
+	// referência: https://stackoverflow.com/questions/21468529/context-switching-ucontext-t-and-makecontext (revisar)
+	getcontext(&(tcb->context));
+	tcb->context.uc_link = 0;
+	tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE);
+	tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
+	tcb->context.uc_stack.ss_flags = 0;
+	makecontext(&(tcb->context), (void (*)(void))start, 1, arg);
+
+	// verificação se a criação da thread foi bem sucedida
+	
+	AppendFila2(&ready_queue, &tcb);
+
+	return tcb->tid;
 }
 
 int cyield(void) {
@@ -31,8 +58,15 @@ int csignal(csem_t *sem) {
 }
 
 int cidentify (char *name, int size) {
-	strncpy (name, "Sergio Cechin - 2019/2 - Teste de compilacao.", size);
-	return 0;
+	char* grupo = "Astelio Jose Weber (283864)\nFrederico Schwartzhaupt (304244)\nJulia Violato (290185)";
+
+	if (strlen(grupo) > size) {
+		return CIDENTIFY_SIZE_ERROR;
+	}
+	else {
+		strcpy(name, grupo);
+		return SUCCESS;
+	}
 }
 
 
