@@ -12,9 +12,9 @@
 | Solicitação de  recurso (cwait)         | | N | 
 | Liberação  de  recurso (csignal)        | | N | 
 | Identificação do grupo (cidentify)      | Julia | S | 
-| support.h: CreateFila2()                | | N |
-| support.h: FirstFila2()                 | | N |
-| support.h: LastFila2()                  | | N |
+| support.h: CreateFila2()                | Julia | N |
+| support.h: FirstFila2()                 | Julia | N |
+| support.h: LastFila2()                  | Julia | N |
 | support.h: NextFila2()                  | | N |
 | support.h: GetAtIteratorFila2()         | | N |
 | support.h: GetAtNextIteratorFila2()     | | N | 
