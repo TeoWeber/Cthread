@@ -8,8 +8,8 @@
 | Cedência  voluntária  da  CPU (cyield)  | Teo | N | 
 | Sincronização  de  término (cjoin)      | | N | 
 | Inicialização  de  semáforo (csem_init) | | N | 
-| Solicitação de  recurso (cwait)         | | N | 
-| Liberação  de  recurso (csignal)        | | N | 
+| Solicitação de  recurso (cwait)         | Fred | N | 
+| Liberação  de  recurso (csignal)        | Fred | N | 
 | Identificação do grupo (cidentify)      | Julia | S |
 
 *Possivelmente mais funções além dessas
