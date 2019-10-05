@@ -10,7 +10,7 @@
 | Criação de uma thread (ccreate)                         | Julia | N       |
 | Cedência  voluntária  da  CPU (cyield)                  | Teo   | N       | 
 | Sincronização  de  término (cjoin)                      | Teo   | N       | 
-| Inicialização  de  semáforo (csem_init)                 |       | N       | 
+| Inicialização  de  semáforo (csem_init)                 | Fred  | S       | 
 | Solicitação de  recurso (cwait)                         | Fred  | N       | 
 | Liberação  de  recurso (csignal)                        | Fred  | S       | 
 | Identificação do grupo (cidentify)                      | Julia | S       |

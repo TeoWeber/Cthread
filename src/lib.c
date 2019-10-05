@@ -9,6 +9,7 @@
 #define SUCCESS 0;
 #define CIDENTIFY_SIZE_ERROR -1;
 #define EMPTY_QUEUE_ERROR -2;
+#define CREATE_QUEUE_ERROR -3;
 
 bool main_thread = false;
 int last_tid = 0;
@@ -16,7 +17,7 @@ FILA2 ready_queue;
 TCB_t* running_queue;
 
 TCB_t* cmax_prio_pop (PFILA2 pfila) {
-    if (FirstFila2(pfila) != 0) {
+    if (FirstFila2(pfila) != SUCCESS) {
         return nullptr;
     }
     else {
@@ -96,7 +97,14 @@ int csem_init(csem_t *sem, int count) {
         cmain_thread_init();
     }
 
-	return -1;
+    sem = (csem_t*)malloc(sizeof(csem_t));
+    sem->count = count;
+    if (CreateFila2(sem->fila) == SUCCESS) {
+        return SUCCESS;
+    }
+    else {
+        return CREATE_QUEUE_ERROR;
+    }
 }
 
 int cwait(csem_t *sem) {
