@@ -10,11 +10,21 @@
 #define CIDENTIFY_SIZE_ERROR -1;
 #define EMPTY_QUEUE_ERROR -2;
 
+bool main_thread = false;
 int last_tid = 0;
 FILA2 ready_queue;
 TCB_t* running_queue;
 
+int cmain_thread_init () {
+    main_thread = true;
+    return SUCESS;
+}
+
 int ccreate (void* (*start)(void*), void *arg, int prio) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
 	CreateFila2(&ready_queue);
 
 	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
@@ -40,18 +50,34 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 }
 
 int cyield(void) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
 	return -1;
 }
 
 int cjoin(int tid) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
 	return -1;
 }
 
 int csem_init(csem_t *sem, int count) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
 	return -1;
 }
 
 int cwait(csem_t *sem) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
     if ((csem_t->count) > 0) {
         (csem_t->count)--;
         return 0;
@@ -66,6 +92,10 @@ int cwait(csem_t *sem) {
 }
 
 int csignal(csem_t *sem) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
     (csem_t->count)++;
     if (FirstFila2(csem_t->fila) != 0) {
         return EMPTY_QUEUE_ERROR;
@@ -91,6 +121,10 @@ int csignal(csem_t *sem) {
 }
 
 int cidentify (char *name, int size) {
+    if (!main_thread) {
+        cmain_thread_init();
+    }
+
 	char* grupo = "Astelio Jose Weber (283864)\nFrederico Schwartzhaupt (304244)\nJulia Violato (290185)";
 
 	if (strlen(grupo) > size) {
@@ -101,5 +135,4 @@ int cidentify (char *name, int size) {
 		return SUCCESS;
 	}
 }
-
 
