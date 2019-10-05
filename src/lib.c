@@ -61,7 +61,7 @@ int cwait(csem_t *sem) {
         running_queue->state = PROCST_BLOQ;
         AppendFila2(csem_t->fila, running_queue);
         running_queue = nullptr;
-        return 0;
+        return SUCCESS;
     }
 }
 
@@ -85,7 +85,8 @@ int csignal(csem_t *sem) {
         TCB_t* tcb = GetAtIteratorFila2(csem_t->fila);
         tcb->state = PROCST_APTO;
         AppendFila2(&ready_queue, &tcb);
-        DeleteAtIteratorFila2(csem_t->fila)
+        DeleteAtIteratorFila2(csem_t->fila);
+	    return SUCCESS;
     }
 }
 
