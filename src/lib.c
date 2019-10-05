@@ -86,7 +86,7 @@ int csignal(csem_t *sem) {
         tcb->state = PROCST_APTO;
         AppendFila2(&ready_queue, &tcb);
         DeleteAtIteratorFila2(csem_t->fila);
-	    return SUCCESS;
+        return SUCCESS;
     }
 }
 
