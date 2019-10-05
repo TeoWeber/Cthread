@@ -12,7 +12,7 @@
 #define CREATE_QUEUE_ERROR -3;
 
 bool main_thread = false;
-int last_tid = 0;
+int next_tid_available = 0;
 FILA2 ready_queue;
 TCB_t* running_queue;
 
@@ -56,8 +56,8 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 
 	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
 
-	tcb->tid = last_tid;
-	last_tid++;
+	tcb->tid = next_tid_available;
+	next_tid_available++;
 	tcb->state = PROCST_APTO;
 	tcb->prio = prio;
 
