@@ -15,6 +15,32 @@ int last_tid = 0;
 FILA2 ready_queue;
 TCB_t* running_queue;
 
+TCB_t* cmax_prio_pop (PFILA2 pfila) {
+    if (FirstFila2(pfila) != 0) {
+        return nullptr;
+    }
+    else {
+        TCB_t* tcb = GetAtIteratorFila2(pfila);
+        int max_prio = tcb->prio;
+        sFilaNode2* max_prio_it = pfila->it;
+        while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
+            tcb = GetAtIteratorFila2(pfila);
+            if (tcb->prio > max_prio) {
+                max_prio = tcb->prio;
+                max_prio_it = pfila->it;
+            }
+        }
+        pfila->it = max_prio_it;
+        tcb = GetAtIteratorFila2(pfila);
+        DeleteAtIteratorFila2(pfila);
+        return tcb;
+    }
+}
+
+int cscheduler () {
+    return SUCCESS;
+}
+
 int cmain_thread_init () {
     main_thread = true;
     return SUCESS;
@@ -87,6 +113,7 @@ int cwait(csem_t *sem) {
         running_queue->state = PROCST_BLOQ;
         AppendFila2(csem_t->fila, running_queue);
         running_queue = nullptr;
+        cscheduler();
         return SUCCESS;
     }
 }
@@ -97,25 +124,13 @@ int csignal(csem_t *sem) {
     }
 
     (csem_t->count)++;
-    if (FirstFila2(csem_t->fila) != 0) {
+    TCB_t* tcb = cmax_prio_pop(csem_t->fila);
+    if (tcb == nullptr) {
         return EMPTY_QUEUE_ERROR;
     }
     else {
-        TCB_t* tcb = GetAtIteratorFila2(csem_t->fila);
-        int max_prio = tcb->prio;
-        sFilaNode2* max_prio_it = (csem_t->fila)->it;
-        while (NextFila2(csem_t->fila) != NXTFILA_ENDQUEUE) {
-            tcb = GetAtIteratorFila2(csem_t->fila);
-            if (tcb->prio > max_prio) {
-                max_prio = tcb->prio;
-                max_prio_it = (csem_t->fila)->it;
-            }
-        }
-        (csem_t->fila)->it = max_prio_it;
-        TCB_t* tcb = GetAtIteratorFila2(csem_t->fila);
         tcb->state = PROCST_APTO;
         AppendFila2(&ready_queue, &tcb);
-        DeleteAtIteratorFila2(csem_t->fila);
         return SUCCESS;
     }
 }
