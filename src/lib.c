@@ -80,8 +80,21 @@ int cyield(void) {
     if (!main_thread) {
         cmain_thread_init();
     }
+    
+    TCB_t* tcb = running_queue;
+    tcb->state = PROCST_APTO;
 
-	return -1;
+    running_queue = NULL;
+
+    AppendFila2(&ready_queue, &tcb);
+
+    if(cscheduler() == SUCCESS) {
+        return SUCCESS;
+    }
+
+    else {
+        return -1;
+    }
 }
 
 int cjoin(int tid) {
