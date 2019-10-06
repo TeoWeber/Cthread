@@ -76,7 +76,7 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 	return tcb->tid;
 }
 
-int cyield(void) {
+int cyield(void) {  // be careful
     if (!main_thread) {
         cmain_thread_init();
     }
