@@ -11,7 +11,7 @@
 | Cedência  voluntária  da  CPU (cyield)                  | Teo   | N       | 
 | Sincronização  de  término (cjoin)                      | Teo   | N       | 
 | Inicialização  de  semáforo (csem_init)                 | Fred  | S       | 
-| Solicitação de  recurso (cwait)                         | Fred  | N       | 
+| Solicitação de  recurso (cwait)                         | Fred  | S       | 
 | Liberação  de  recurso (csignal)                        | Fred  | S       | 
 | Identificação do grupo (cidentify)                      | Julia | S       |
 
