@@ -53,6 +53,20 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
 }
 
 int cscheduler () {
+
+    // Precisa verificar se a thread executando é NULL
+
+    // Se for, então o escalonador foi chamado após uma cwait, cyield ou cjoin (a princípio)
+
+    // Se não for, então o escalonador foi chamado após o término de uma thread
+    // Então o estado da thread executando deverá ser modificado para PROCST_TERMINO
+
+    // Em qualquer caso deverá ser usada a função cmax_prio_pop() para escolher e setar como thread executando
+    // dentre as threads aptos, a thread com maior prioridade
+    // (se houver mais de uma, será a primeira dentre elas)
+    // O estado da mesma, deverá ser modificado para PROCST_EXEC
+    // Então, o contexto da mesma deverá ser selecionado e executado de onde parou
+
     return SUCCESS;
 }
 
