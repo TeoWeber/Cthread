@@ -5,7 +5,7 @@
 | ATIVIDADE                                               | Quem? | Pronta? |
 | ------------------------------------------------------- | ----- | ------- | 
 | Seleção do elemento de maior prioridade (cmax_prio_pop) | Fred  | S       | 
-| Escalonamento de estado apto para executar (cscheduler) |       | N       | 
+| Escalonamento de estado apto para executar (cscheduler) | Julia | N       | 
 | Inicialização da thread main (cmain_thread_init)        |       | N       | 
 | Criação de uma thread (ccreate)                         | Julia | N       |
 | Cedência  voluntária  da  CPU (cyield)                  | Teo   | N       | 
