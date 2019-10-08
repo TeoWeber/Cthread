@@ -24,7 +24,6 @@
 
 int main_thread = 0;
 int next_tid_available = 0;
-int running_to_state = PROCST_TERMINO;
 FILA2 ready_queue;
 TCB_t* running_queue;
 
@@ -54,18 +53,21 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
 }
 
 int cscheduler () {
-    if (running_to_state == PROCST_TERMINO) {
+    if (running_queue->state == PROCST_EXEC) {
+        running_queue->state = PROCST_TERMINO;
         // Liberar threads esperando por essa thread via cjoin
     }
-    else if (running_to_state == PROCST_APTO) {
-        AppendFila2(&ready_queue, &running_queue);
+    else {
+        // Calcular nova prioridade da thread atual
+        if (running_queue->state == PROCST_APTO) {
+            AppendFila2(&ready_queue, &running_queue);
+        }
     }
-    running_queue->state = running_to_state;
 
     running_queue = cmax_prio_pop(&ready_queue);
     running_queue->state = PROCST_EXEC;
 
-    running_to_state = PROCST_TERMINO;
+    // Começar  a contar o tempo para thread que vai executar.
     swapcontext(&running_queue->context, &schedulerContext);
 
     return SUCCESS;
@@ -105,8 +107,6 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 	tcb->context.uc_stack.ss_flags = 0;
 	makecontext(&(tcb->context), (void (*)(void))start, 1, arg);
 
-	
-
 	return tcb->tid;
 }
 
@@ -116,7 +116,7 @@ int cyield(void) {
         cmain_thread_init();
     }
 
-    running_to_state = PROCST_APTO;
+    running_queue->state = PROCST_APTO;
     swapcontext(&current_thread->context, &schedulerContext);
 
     return SUCCESS;
@@ -157,8 +157,8 @@ int cwait(csem_t *sem) {
     }
     else {
         (sem->count)--;
-        AppendFila2(sem->fila, &running_queue);
 
+        AppendFila2(sem->fila, &running_queue);
         current_thread->state = PROCST_BLOQ;
         swapcontext(&current_thread->context, &schedulerContext);
 
