@@ -151,12 +151,12 @@ int cwait(csem_t *sem) {
         cmain_thread_init();
     }
 
-    if ((sem->count) > 0) {
-        (sem->count)--;
+    if (sem->count > 0) {
+        sem->count--;
         return 0;
     }
     else {
-        (sem->count)--;
+        sem->count--;
 
         AppendFila2(sem->fila, &running_queue);
         current_thread->state = PROCST_BLOQ;
@@ -171,7 +171,7 @@ int csignal(csem_t *sem) {
         cmain_thread_init();
     }
 
-    (sem->count)++;
+    sem->count++;
     TCB_t* tcb = cmax_prio_pop(sem->fila);
     if (tcb == NULL) {
         return EMPTY_QUEUE_ERROR;
