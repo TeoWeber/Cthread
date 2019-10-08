@@ -21,6 +21,7 @@
 #define CIDENTIFY_SIZE_ERROR -1
 #define EMPTY_QUEUE_ERROR -2
 #define CREATE_QUEUE_ERROR -3
+#define RESERVED_TID_ERROR -4
 
 int main_thread = 0;
 int next_tid_available = 0;
@@ -74,6 +75,7 @@ int cscheduler () {
 }
 
 int cmain_thread_init () {
+    startTimer();
     main_thread = 1;
 
     // Inicializando o contexto do escalonador:
@@ -82,6 +84,25 @@ int cmain_thread_init () {
     schedulerContext.uc_stack.ss_sp = (char *) malloc (STACK_SS_SIZE);
     schedulerContext.uc_stack.ss_size = STACK_SS_SIZE;
     makecontext(&schedulerContext, (void (*)(void)) cscheduler , 0);
+
+    // Definindo o tcb da thread main:
+	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
+
+    if (next_tid_available != 0) {
+        return RESERVED_TID_ERROR;
+    }
+
+	tcb->tid = next_tid_available;
+	next_tid_available++;
+	tcb->state = PROCST_EXEC;
+	tcb->prio = 0; // VERIFICAR (deve ser 0?)
+
+	getcontext(&(tcb->context));
+    // FAZER DEMAIS MODIFICAÇÕES (precisa?) (estão corretas?)
+	// tcb->context.uc_link = 0; ou tcb->context.uc_link = &schedulerContext;
+	// tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE);
+	// tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
+	// tcb->context.uc_stack.ss_flags = 0;
 
     return SUCCESS;
 }
