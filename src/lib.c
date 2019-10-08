@@ -107,8 +107,8 @@ int cmain_thread_init () {
     // FAZER DEMAIS MODIFICAÇÕES (precisa?) (estão corretas?)
 	// tcb->context.uc_link = 0; ou tcb->context.uc_link = &schedulerContext;
 	// if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
-    //    return MALLOC_ERROR;
-    //}
+    //     return MALLOC_ERROR;
+    // }
 	// tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
 	// tcb->context.uc_stack.ss_flags = 0;
 
