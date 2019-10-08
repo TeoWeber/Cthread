@@ -24,6 +24,7 @@
 
 int main_thread = 0;
 int next_tid_available = 0;
+int running_to_state = PROCST_TERMINO;
 FILA2 ready_queue;
 TCB_t* running_queue;
 
@@ -53,13 +54,18 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
 }
 
 int cscheduler () {
-    if (running_queue != NULL)
-    {
-        running_queue->state = PROCST_TERMINO;
+    if (running_to_state == PROCST_TERMINO) {
+        // Liberar threads esperando por essa thread via cjoin
     }
+    else if (running_to_state == PROCST_APTO) {
+        AppendFila2(&ready_queue, &running_queue);
+    }
+    running_queue->state = running_to_state;
 
     running_queue = cmax_prio_pop(&ready_queue);
     running_queue->state = PROCST_EXEC;
+
+    running_to_state = PROCST_TERMINO;
     swapcontext(&running_queue->context, &schedulerContext);
 
     return SUCCESS;
@@ -99,7 +105,7 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 	tcb->context.uc_stack.ss_flags = 0;
 	makecontext(&(tcb->context), (void (*)(void))start, 1, arg);
 
-	AppendFila2(&ready_queue, &tcb);
+	
 
 	return tcb->tid;
 }
@@ -110,14 +116,7 @@ int cyield(void) {
         cmain_thread_init();
     }
 
-    // Modifica o estado da thread atual
-    TCB_t* current_thread = running_queue;
-    current_thread->state = PROCST_APTO;
-
-    running_queue = NULL;
-
-    AppendFila2(&ready_queue, &current_thread); // Pode mudar se implementarmos escalonamentos por filas de prioridades
-
+    running_to_state = PROCST_APTO;
     swapcontext(&current_thread->context, &schedulerContext);
 
     return SUCCESS;
@@ -158,11 +157,11 @@ int cwait(csem_t *sem) {
     }
     else {
         (sem->count)--;
-        TCB_t* current_thread = running_queue;
+        AppendFila2(sem->fila, &running_queue);
+
         current_thread->state = PROCST_BLOQ;
-        running_queue = NULL;
-        AppendFila2(sem->fila, &current_thread);
         swapcontext(&current_thread->context, &schedulerContext);
+
         return SUCCESS;
     }
 }
