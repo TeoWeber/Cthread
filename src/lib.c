@@ -101,7 +101,7 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 	tcb->prio = prio;
 
 	getcontext(&(tcb->context));
-	tcb->context.uc_link = 0;
+	tcb->context.uc_link = &schedulerContext;
 	tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE);
 	tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
 	tcb->context.uc_stack.ss_flags = 0;
