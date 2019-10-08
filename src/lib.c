@@ -22,6 +22,7 @@
 #define EMPTY_QUEUE_ERROR -2
 #define CREATE_QUEUE_ERROR -3
 #define RESERVED_TID_ERROR -4
+#define MALLOC_ERROR -5
 
 int main_thread = 0;
 int next_tid_available = 0;
@@ -81,12 +82,17 @@ int cmain_thread_init () {
     // Inicializando o contexto do escalonador:
     getcontext(&schedulerContext);
     schedulerContext.uc_link = 0;
-    schedulerContext.uc_stack.ss_sp = (char *) malloc (STACK_SS_SIZE);
+    if ((schedulerContext.uc_stack.ss_sp = (char *) malloc (STACK_SS_SIZE)) == NULL) {
+        return MALLOC_ERROR;
+    }
     schedulerContext.uc_stack.ss_size = STACK_SS_SIZE;
     makecontext(&schedulerContext, (void (*)(void)) cscheduler , 0);
 
     // Definindo o tcb da thread main:
-	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
+	TCB_t* tcb;
+    if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
+        return MALLOC_ERROR;
+    }
 
     if (next_tid_available != 0) {
         return RESERVED_TID_ERROR;
@@ -100,7 +106,9 @@ int cmain_thread_init () {
 	getcontext(&(tcb->context));
     // FAZER DEMAIS MODIFICAÇÕES (precisa?) (estão corretas?)
 	// tcb->context.uc_link = 0; ou tcb->context.uc_link = &schedulerContext;
-	// tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE);
+	// if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
+    //    return MALLOC_ERROR;
+    //}
 	// tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
 	// tcb->context.uc_stack.ss_flags = 0;
 
@@ -114,7 +122,11 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 
 	CreateFila2(&ready_queue);
 
-	TCB_t* tcb = (TCB_t*)malloc(sizeof(TCB_t));
+	TCB_t* tcb;
+    if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
+        return MALLOC_ERROR;
+    }
+
 
 	tcb->tid = next_tid_available;
 	next_tid_available++;
@@ -123,7 +135,9 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 
 	getcontext(&(tcb->context));
 	tcb->context.uc_link = &schedulerContext;
-	tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE);
+	if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
+        return MALLOC_ERROR;
+    }
 	tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
 	tcb->context.uc_stack.ss_flags = 0;
 	makecontext(&(tcb->context), (void (*)(void))start, 1, arg);
@@ -157,7 +171,9 @@ int csem_init(csem_t *sem, int count) {
         cmain_thread_init();
     }
 
-    sem = (csem_t*)malloc(sizeof(csem_t));
+    if ((sem = (csem_t*)malloc(sizeof(csem_t))) == NULL) {
+        return MALLOC_ERROR;
+    }
     sem->count = count;
     if (CreateFila2(sem->fila) == SUCCESS) {
         return SUCCESS;
