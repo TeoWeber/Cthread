@@ -40,7 +40,7 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
         NODE2* max_prio_it = pfila->it;
         while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
             tcb = GetAtIteratorFila2(pfila);
-            if (tcb->prio > max_prio) {
+            if (tcb->prio < max_prio) {
                 max_prio = tcb->prio;
                 max_prio_it = pfila->it;
             }
