@@ -58,7 +58,7 @@ int cscheduler () {
         // Liberar threads esperando por essa thread via cjoin
     }
     else {
-        // Calcular nova prioridade da thread atual
+        running_queue->prio = (int) stopTimer();
         if (running_queue->state == PROCST_APTO) {
             AppendFila2(&ready_queue, &running_queue);
         }
@@ -67,8 +67,8 @@ int cscheduler () {
     running_queue = cmax_prio_pop(&ready_queue);
     running_queue->state = PROCST_EXEC;
 
-    // Começar  a contar o tempo para thread que vai executar.
-    swapcontext(&running_queue->context, &schedulerContext);
+    startTimer();
+    setcontext(&running_queue->context);
 
     return SUCCESS;
 }
