@@ -39,7 +39,6 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
         NODE2* max_prio_it = pfila->it;
         while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
             tcb = (TCB_t*)GetAtIteratorFila2(pfila);
-            tcb_prio = tcb->prio; // Cast especial de int com sinal para int sem sinal.
             if ((unsigned int)tcb->prio < max_prio) {
                 max_prio = (unsigned int)tcb->prio;
                 max_prio_it = pfila->it;
