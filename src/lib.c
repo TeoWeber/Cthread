@@ -1,14 +1,3 @@
-
-#include <stdio.h>
-#include <string.h>
-#include "../include/support.h"
-#include "../include/cthread.h"
-#include "../include/cdata.h"
-
-#define STACK_SS_SIZE 64000
-#define SUCCESS 0
-#define CIDENTIFY_SIZE_ERROR -1
-#define EMPTY_QUEUE_ERROR -2
 #include <stdio.h>
 #include <string.h>
 #include <ucontext.h>
