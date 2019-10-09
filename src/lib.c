@@ -270,11 +270,11 @@ int csignal(csem_t *sem) {
 
     sem->count++;
     TCB_t* tcb = cmax_prio_pop(sem->fila);
-    cpop_thread(&blocked_queue, tcb->tid);
     if (tcb == NULL) {
         return EMPTY_QUEUE_ERROR;
     }
     else {
+        cpop_thread(&blocked_queue, tcb->tid);
         tcb->state = PROCST_APTO;
         AppendFila2(&ready_queue, &tcb);
         return SUCCESS;
