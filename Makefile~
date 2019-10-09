@@ -17,7 +17,7 @@ BIN_DIR=./bin
 SRC_DIR=./src
 
 all: lib
-	ar crs $(LIB_DIR)/libcthread.a $(BIN_DIR)/*.o
+	ar crs $(LIB_DIR)/libcthread.a $(BIN_DIR)/lib.o
 
 lib:
 	$(CC) -c $(SRC_DIR)/lib.c -o $(BIN_DIR)/lib.o -Wall

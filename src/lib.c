@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ucontext.h>
 #include "../include/support.h"
 #include "../include/cthread.h"
@@ -28,6 +29,8 @@ TCB_t* running_queue;
 
 // Contexto do escalonador
 ucontext_t schedulerContext;
+
+int cscheduler();
 
 TCB_t* cmax_prio_pop (PFILA2 pfila) {
     if (FirstFila2(pfila) != SUCCESS) {
@@ -81,16 +84,12 @@ int cmain_thread_init () {
 	tcb->tid = next_tid_available;
 	next_tid_available++;
 	tcb->state = PROCST_EXEC;
-	tcb->prio = 0; // VERIFICAR (deve ser 0?)
-
+	tcb->prio = 0; 
+	tcb->d_tid = -1;
+	
 	getcontext(&(tcb->context));
-    // FAZER DEMAIS MODIFICAÇÕES (precisa?) (estão corretas?)
-	// tcb->context.uc_link = 0; ou tcb->context.uc_link = &schedulerContext;
-	// if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
-    //     return MALLOC_ERROR;
-    // }
-	// tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
-	// tcb->context.uc_stack.ss_flags = 0;
+    
+	running_queue = tcb;
 
     return SUCCESS;
 }
@@ -123,8 +122,10 @@ int cfind_thread(int tid) {
             } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
 
         return THREAD_NOT_FOUND;
+    	}
     }
     // procura se a thread com o tid dado existe na ready_queue, running_queue ou blocked_queue
+    return THREAD_NOT_FOUND;
 }
 
 TCB_t* cpop_thread(PFILA2 pfila, int tid) {
@@ -179,32 +180,34 @@ int cscheduler () {
     return SUCCESS;
 }
 
-int ccreate (void* (*start)(void*), void *arg, int prio) {
+int ccreate (void* (*start)(void*), void *arg, int prio) {   
     if (!main_thread) {
         cmain_thread_init();
     }
-
-	TCB_t* tcb;
+	
+    TCB_t* tcb;
     if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
         return MALLOC_ERROR;
     }
 
-	tcb->tid = next_tid_available;
-	next_tid_available++;
-	tcb->state = PROCST_APTO;
-	tcb->prio = prio;
+    tcb->tid = next_tid_available;
+    next_tid_available++;
+    tcb->state = PROCST_APTO;
+    tcb->prio = prio;
     tcb->d_tid = -1;
 
-	getcontext(&(tcb->context));
-	tcb->context.uc_link = &schedulerContext;
-	if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
+    getcontext(&(tcb->context));
+    tcb->context.uc_link = &schedulerContext;
+    if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
         return MALLOC_ERROR;
     }
-	tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
-	tcb->context.uc_stack.ss_flags = 0;
-	makecontext(&(tcb->context), (void (*)(void))start, 1, arg);
+    tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
+    tcb->context.uc_stack.ss_flags = 0;
+    makecontext(&(tcb->context), start, 1, arg);
 
-	return tcb->tid;
+    AppendFila2(&ready_queue, tcb);
+
+    return tcb->tid;
 }
 
 
@@ -224,7 +227,6 @@ int cyield(void) {
 
 
 int cjoin(int tid) {
-
     TCB_t* candidate_thread;
     TCB_t* tcb_aux;
     int filaIndicator;
@@ -234,11 +236,10 @@ int cjoin(int tid) {
         cmain_thread_init();
     }
 
-
     filaIndicator = cfind_thread(tid);      // Informação com a fila da thread do request
 
     if(filaIndicator == THREAD_NOT_FOUND) { // cfind_thread() retornou erro
-        return THREAD_NOT_FOUND;
+	return THREAD_NOT_FOUND;
     }
     if (filaIndicator == IN_READY_QUEUE) {  // cfind_thread() retornou que a thread esta na ready_queue
         filaRef = &ready_queue;
@@ -258,11 +259,10 @@ int cjoin(int tid) {
     running_queue->state = PROCST_BLOQ;             // running_queue fica bloqueada
 
     AppendFila2(filaRef, candidate_thread);         // Devolvemos a thread do request para sua fila
-
     tcb_aux = running_queue; // Acho que precisa (??)
-
     swapcontext(&tcb_aux->context, &schedulerContext);
-
+    
+    return SUCCESS;
 }
 
 
