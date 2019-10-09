@@ -173,7 +173,7 @@ int cmain_thread_init () {
 	tcb->prio = 0;
 	tcb->d_tid = -1;
 
-	getcontext(&(tcb->context));
+	getcontext(&tcb->context);
 
 	running_queue = tcb;
 
@@ -199,14 +199,14 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
     tcb->prio = prio;
     tcb->d_tid = -1;
 
-    getcontext(&(tcb->context));
+    getcontext(&tcb->context);
     tcb->context.uc_link = &schedulerContext;
     if ((tcb->context.uc_stack.ss_sp = malloc(STACK_SS_SIZE)) == NULL) {
         return MALLOC_ERROR;
     }
     tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
     tcb->context.uc_stack.ss_flags = 0;
-    makecontext(&(tcb->context), start, 1, arg);
+    makecontext(&tcb->context, start, 1, arg);
 
     AppendFila2(&ready_queue, tcb);
 
