@@ -17,8 +17,8 @@
 #define CREATE_QUEUE_ERROR -3
 #define RESERVED_TID_ERROR -4
 #define MALLOC_ERROR -5
-#define THREAD_NOT_FOUND -6
-#define THREAD_ALREADY_BLOCKING -7
+#define THREAD_NOT_FOUND_ERROR -6
+#define THREAD_ALREADY_BLOCKING_ERROR -7
 #define IN_RUNNING_QUEUE_ERROR -8
 #define NOT_IMPLEMENTED_FLAG -9
 
@@ -79,11 +79,11 @@ int cfind_thread(int tid) {
                 }
             } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
 
-        return THREAD_NOT_FOUND;
+        return THREAD_NOT_FOUND_ERROR;
     	}
     }
     // procura se a thread com o tid dado existe na ready_queue, running_queue ou blocked_queue
-    return THREAD_NOT_FOUND;
+    return THREAD_NOT_FOUND_ERROR;
 }
 
 TCB_t* cpop_thread(PFILA2 pfila, int tid, int booleano) {
@@ -246,8 +246,8 @@ int cjoin(int tid) {
 
     filaIndicator = cfind_thread(tid); // Informação com a fila da thread do request
 
-    if (filaIndicator == THREAD_NOT_FOUND) { // cfind_thread() retornou erro
-        return THREAD_NOT_FOUND;
+    if (filaIndicator == THREAD_NOT_FOUND_ERROR) { // cfind_thread() retornou erro
+        return THREAD_NOT_FOUND_ERROR;
     }
     else if (filaIndicator == IN_RUNNING_QUEUE) { // cfind_thread() retornou a própria thread executando, e a cjoin não pode bloquear a si mesmo
         return IN_RUNNING_QUEUE_ERROR;
@@ -261,8 +261,8 @@ int cjoin(int tid) {
 
     candidate_thread = cpop_thread(filaRef, tid, 0); // Pop da thread na sua respectiva lista
 
-    if (candidate_thread->d_tid != -1) { // Se a thread já esta bloqueando, retorna THREAD_ALREADY_BLOCKING
-        return THREAD_ALREADY_BLOCKING;
+    if (candidate_thread->d_tid != -1) { // Se a thread já esta bloqueando, retorna THREAD_ALREADY_BLOCKING_ERROR
+        return THREAD_ALREADY_BLOCKING_ERROR;
     }
 
     candidate_thread->d_tid = running_queue->tid;// Informamos que a thread do request agora esta bloqueando uma thread
