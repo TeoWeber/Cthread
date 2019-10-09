@@ -22,17 +22,12 @@
 #define IN_RUNNING_QUEUE_ERROR -8
 #define NOT_IMPLEMENTED_FLAG -9
 
-
 int main_thread = 0;
 int next_tid_available = 0;
 FILA2 ready_queue;
 FILA2 blocked_queue;
 TCB_t* running_queue;
-
-// Contexto do escalonador
-ucontext_t schedulerContext;
-
-int cscheduler();
+ucontext_t schedulerContext; // Contexto do escalonador
 
 TCB_t* cmax_prio_pop (PFILA2 pfila) {
     if (FirstFila2(pfila) != SUCCESS) {
@@ -55,46 +50,6 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
         DeleteAtIteratorFila2(pfila);
         return tcb;
     }
-}
-
-int cmain_thread_init () {
-    startTimer();
-    main_thread = 1;
-
-    // Inicializa a fila de aptos e bloqueados
-    CreateFila2(&ready_queue);
-    CreateFila2(&blocked_queue);
-
-    // Inicializando o contexto do escalonador:
-    getcontext(&schedulerContext);
-    schedulerContext.uc_link = 0;
-    if ((schedulerContext.uc_stack.ss_sp = (char *) malloc (STACK_SS_SIZE)) == NULL) {
-        return MALLOC_ERROR;
-    }
-    schedulerContext.uc_stack.ss_size = STACK_SS_SIZE;
-    makecontext(&schedulerContext, (void (*)(void)) cscheduler , 0);
-
-    // Definindo o tcb da thread main:
-	TCB_t* tcb;
-    if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
-        return MALLOC_ERROR;
-    }
-
-    if (next_tid_available != 0) {
-        return RESERVED_TID_ERROR;
-    }
-
-	tcb->tid = next_tid_available;
-	next_tid_available++;
-	tcb->state = PROCST_EXEC;
-	tcb->prio = 0;
-	tcb->d_tid = -1;
-
-	getcontext(&(tcb->context));
-
-	running_queue = tcb;
-
-    return SUCCESS;
 }
 
 int cfind_thread(int tid) {
@@ -181,6 +136,46 @@ int cscheduler () {
 
     startTimer();
     setcontext(&running_queue->context);
+
+    return SUCCESS;
+}
+
+int cmain_thread_init () {
+    startTimer();
+    main_thread = 1;
+
+    // Inicializa a fila de aptos e bloqueados
+    CreateFila2(&ready_queue);
+    CreateFila2(&blocked_queue);
+
+    // Inicializando o contexto do escalonador:
+    getcontext(&schedulerContext);
+    schedulerContext.uc_link = 0;
+    if ((schedulerContext.uc_stack.ss_sp = (char *) malloc (STACK_SS_SIZE)) == NULL) {
+        return MALLOC_ERROR;
+    }
+    schedulerContext.uc_stack.ss_size = STACK_SS_SIZE;
+    makecontext(&schedulerContext, (void (*)(void)) cscheduler , 0);
+
+    // Definindo o tcb da thread main:
+	TCB_t* tcb;
+    if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
+        return MALLOC_ERROR;
+    }
+
+    if (next_tid_available != 0) {
+        return RESERVED_TID_ERROR;
+    }
+
+	tcb->tid = next_tid_available;
+	next_tid_available++;
+	tcb->state = PROCST_EXEC;
+	tcb->prio = 0;
+	tcb->d_tid = -1;
+
+	getcontext(&(tcb->context));
+
+	running_queue = tcb;
 
     return SUCCESS;
 }
@@ -277,8 +272,6 @@ int cjoin(int tid) {
 
     return SUCCESS;
 }
-
-
 
 int csem_init(csem_t *sem, int count) {
     if (!main_thread) {
