@@ -282,6 +282,7 @@ int csignal(csem_t *sem) {
 
     sem->count++;
     TCB_t* tcb = cmax_prio_pop(sem->fila);
+    cpop_thread(&blocked_queue, tcb->tid);
     if (tcb == NULL) {
         return EMPTY_QUEUE_ERROR;
     }
