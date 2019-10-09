@@ -115,7 +115,7 @@ int cscheduler () {
         tcb->state = PROCST_TERMINO;
 
         if (tcb->d_tid != -1) { // Libera a thread bloqueada em cjoin(), se existir
-            unlockedThread = cpop_thread (&blocked_queue, tcb->d_tid);
+            unlockedThread = cpop_thread(&blocked_queue, tcb->d_tid, 1);
             unlockedThread->state = PROCST_APTO;
             AppendFila2(&ready_queue, unlockedThread);
         }
