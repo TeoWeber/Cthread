@@ -263,6 +263,8 @@ int cjoin(int tid) {
 
     swapcontext(&tcb_aux->context, &schedulerContext);
 
+    return SUCCESS;
+
 }
 
 
