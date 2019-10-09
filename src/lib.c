@@ -205,7 +205,7 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
     }
     tcb->context.uc_stack.ss_size = STACK_SS_SIZE;
     tcb->context.uc_stack.ss_flags = 0;
-    makecontext(&tcb->context, start, 1, arg);
+    makecontext(&tcb->context, (void (*)(void))start, 1, arg);
 
     AppendFila2(&ready_queue, tcb);
 
