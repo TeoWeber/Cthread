@@ -212,7 +212,6 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
     return tcb->tid;
 }
 
-
 int cyield(void) {
     if (!main_thread) {
         int cmain_thread_init_flag = cmain_thread_init();
