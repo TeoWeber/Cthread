@@ -38,12 +38,14 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
     }
     else {
         TCB_t* tcb = (TCB_t*)GetAtIteratorFila2(pfila);
-        int max_prio = tcb->prio;
+        unsigned int max_prio = tcb->prio;
+        unsigned int tcb_prio;
         NODE2* max_prio_it = pfila->it;
         while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
             tcb = (TCB_t*)GetAtIteratorFila2(pfila);
-            if (tcb->prio < max_prio) {
-                max_prio = tcb->prio;
+            tcb_prio = tcb->prio; // Cast especial de int com sinal para int sem sinal.
+            if (tcb_prio < max_prio) {
+                max_prio = tcb_prio;
                 max_prio_it = pfila->it;
             }
         }
@@ -261,7 +263,7 @@ int cjoin(int tid) {
     AppendFila2(filaRef, candidate_thread);         // Devolvemos a thread do request para sua fila
     tcb_aux = running_queue; // Acho que precisa (??)
     swapcontext(&tcb_aux->context, &schedulerContext);
-    
+
     return SUCCESS;
 }
 
