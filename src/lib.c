@@ -23,10 +23,12 @@
 #define CREATE_QUEUE_ERROR -3
 #define RESERVED_TID_ERROR -4
 #define MALLOC_ERROR -5
+#define THREAD_NOT_FOUND -6
 
 int main_thread = 0;
 int next_tid_available = 0;
 FILA2 ready_queue;
+FILA2 blocked_queue;
 TCB_t* running_queue;
 
 // Contexto do escalonador
@@ -55,14 +57,20 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
 }
 
 int cscheduler () {
-    if (running_queue->state == PROCST_EXEC) {
-        running_queue->state = PROCST_TERMINO;
+    TCB_t* tcb;
+    tcb = running_queue;
+
+    if (tcb->state == PROCST_EXEC) {
+        tcb->state = PROCST_TERMINO;
         // Liberar threads esperando por essa thread via cjoin
     }
     else {
-        running_queue->prio = (int) stopTimer();
-        if (running_queue->state == PROCST_APTO) {
-            AppendFila2(&ready_queue, &running_queue);
+        tcb->prio = (int) stopTimer();
+        if (tcb->state == PROCST_APTO) {
+            AppendFila2(&ready_queue, &tcb);
+        }
+        else if (tcb->state == PROCST_BLOQ) {
+            AppendFila2(&blocked_queue, &tcb);
         }
     }
 
@@ -78,6 +86,10 @@ int cscheduler () {
 int cmain_thread_init () {
     startTimer();
     main_thread = 1;
+
+    // Inicializa a fila de aptos e bloqueados
+    CreateFila2(&ready_queue);
+    CreateFila2(&blocked_queue);
 
     // Inicializando o contexto do escalonador:
     getcontext(&schedulerContext);
@@ -115,18 +127,70 @@ int cmain_thread_init () {
     return SUCCESS;
 }
 
+int cfind_thread(int tid) {
+    if (running_queue->tid == tid)
+        return SUCCESS;
+    else {
+        TCB_t* tcb;
+        PFILA2 fila = &ready_queue;
+        FirstFila2(fila);
+        tcb = (TCB_t*)GetAtIteratorFila2(fila);
+        
+        while (tcb != NULL) {
+            if (tcb->tid == tid)
+                return SUCCESS;
+            else {
+                NextFila2(fila);
+                tcb = (TCB_t*)GetAtIteratorFila2(fila);
+            }
+        }
+
+        fila = &blocked_queue;
+        FirstFila2(fila);
+        tcb = (TCB_t*)GetAtIteratorFila2(fila);
+
+        while (tcb != NULL) {
+            if (tcb->tid == tid)
+                return SUCCESS;
+            else {
+                NextFila2(fila);
+                tcb = (TCB_t*)GetAtIteratorFila2(fila);
+            }
+        }
+
+        return THREAD_NOT_FOUND;
+    }
+    // procura se a thread com o tid dado existe na ready_queue, running_queue ou blocked_queue
+}
+
+TCB_t* cpop_thread(PFILA2 queue, int tid) {
+    TCB_t* tcb;
+    FirstFila2(queue);
+    tcb = (TCB_t*)GetAtIteratorFila2(queue);
+
+    while (tcb != NULL) {
+        if (tcb->tid == tid) {
+            DeleteAtIteratorFila2(queue);
+            return tcb;
+        }
+        else {
+            NextFila2(queue);
+            tcb = (TCB_t*)GetAtIteratorFila2(queue);
+        }
+    }
+
+    return tcb;
+}
+
 int ccreate (void* (*start)(void*), void *arg, int prio) {
     if (!main_thread) {
         cmain_thread_init();
     }
 
-	CreateFila2(&ready_queue);
-
 	TCB_t* tcb;
     if ((tcb = (TCB_t*)malloc(sizeof(TCB_t))) == NULL) {
         return MALLOC_ERROR;
     }
-
 
 	tcb->tid = next_tid_available;
 	next_tid_available++;
@@ -151,8 +215,11 @@ int cyield(void) {
         cmain_thread_init();
     }
 
-    running_queue->state = PROCST_APTO;
-    swapcontext(&current_thread->context, &schedulerContext);
+    TCB_t* tcb;
+    tcb = running_queue;
+
+    tcb->state = PROCST_APTO;
+    swapcontext(&tcb->context, &schedulerContext);
 
     return SUCCESS;
 }
@@ -163,7 +230,10 @@ int cjoin(int tid) {
         cmain_thread_init();
     }
 
-	return -1;
+    if (cfind_thread(tid) == THREAD_NOT_FOUND)
+        return -1;
+
+	
 }
 
 int csem_init(csem_t *sem, int count) {
@@ -195,9 +265,11 @@ int cwait(csem_t *sem) {
     else {
         sem->count--;
 
-        AppendFila2(sem->fila, &running_queue);
-        current_thread->state = PROCST_BLOQ;
-        swapcontext(&current_thread->context, &schedulerContext);
+        TCB_t* tcb;
+        tcb = running_queue;
+        AppendFila2(sem->fila, &tcb);
+        tcb->state = PROCST_BLOQ;
+        swapcontext(&tcb->context, &schedulerContext);
 
         return SUCCESS;
     }
