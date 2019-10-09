@@ -7,6 +7,9 @@
 
 #define STACK_SS_SIZE 64000
 
+#define IN_BLOCKED_QUEUE 3
+#define IN_READY_QUEUE 2
+#define IN_RUNNING_QUEUE 1
 #define SUCCESS 0
 #define CIDENTIFY_SIZE_ERROR -1
 #define EMPTY_QUEUE_ERROR -2
@@ -15,10 +18,9 @@
 #define MALLOC_ERROR -5
 #define THREAD_NOT_FOUND -6
 #define THREAD_ALREADY_BLOCKING -7
-#define NOT_IMPLEMENTED_FLAG -1000
+#define IN_RUNNING_QUEUE_ERROR -8
+#define NOT_IMPLEMENTED_FLAG -9
 
-#define IN_READY_QUEUE 1
-#define IN_BLOCKED_QUEUE 2
 
 int main_thread = 0;
 int next_tid_available = 0;
@@ -35,14 +37,13 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
     }
     else {
         TCB_t* tcb = (TCB_t*)GetAtIteratorFila2(pfila);
-        unsigned int max_prio = tcb->prio;
-        unsigned int tcb_prio;
+        unsigned int max_prio = (unsigned int)tcb->prio;
         NODE2* max_prio_it = pfila->it;
         while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
             tcb = (TCB_t*)GetAtIteratorFila2(pfila);
             tcb_prio = tcb->prio; // Cast especial de int com sinal para int sem sinal.
-            if (tcb_prio < max_prio) {
-                max_prio = tcb_prio;
+            if ((unsigned int)tcb->prio < max_prio) {
+                max_prio = (unsigned int)tcb->prio;
                 max_prio_it = pfila->it;
             }
         }
@@ -99,7 +100,7 @@ int cmain_thread_init () {
 
 int cfind_thread(int tid) {
     if (running_queue->tid == tid) {
-        return THREAD_NOT_FOUND; // Cjoin não deve poder bloquear ele mesmo.
+        return IN_RUNNING_QUEUE;
     }
     else {
         TCB_t* tcb;
@@ -129,7 +130,7 @@ int cfind_thread(int tid) {
     // procura se a thread com o tid dado existe na ready_queue, running_queue ou blocked_queue
 }
 
-TCB_t* cpop_thread(PFILA2 pfila, int tid) {
+TCB_t* cpop_thread(PFILA2 pfila, int tid, int booleano) {
     TCB_t* tcb;
 
     if (FirstFila2(pfila) != SUCCESS) {
@@ -139,7 +140,9 @@ TCB_t* cpop_thread(PFILA2 pfila, int tid) {
         do {
             tcb = (TCB_t*)GetAtIteratorFila2(pfila);
             if (tcb->tid == tid) {
-                DeleteAtIteratorFila2(pfila);
+                if (booleano) {
+                    DeleteAtIteratorFila2(pfila);
+                }
                 return tcb;
             }
         } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
@@ -156,7 +159,7 @@ int cscheduler () {
         stopTimer();
         tcb->state = PROCST_TERMINO;
 
-        if (tcb->d_tid != -1) { // Libera a thread bloqueada em Cjoin(), se existir
+        if (tcb->d_tid != -1) { // Libera a thread bloqueada em cjoin(), se existir
             unlockedThread = cpop_thread (&blocked_queue, tcb->d_tid);
             unlockedThread->state = PROCST_APTO;
             AppendFila2(&ready_queue, unlockedThread);
@@ -226,44 +229,41 @@ int cyield(void) {
 
 
 int cjoin(int tid) {
-
-    TCB_t* candidate_thread;
-    TCB_t* tcb_aux;
-    int filaIndicator;
-    PFILA2 filaRef;
-
     if (!main_thread) {
         cmain_thread_init();
     }
 
+    TCB_t* candidate_thread;
+    int filaIndicator;
+    PFILA2 filaRef;
 
-    filaIndicator = cfind_thread(tid);      // Informação com a fila da thread do request
 
-    if(filaIndicator == THREAD_NOT_FOUND) { // cfind_thread() retornou erro
+
+    filaIndicator = cfind_thread(tid); // Informação com a fila da thread do request
+
+    if (filaIndicator == THREAD_NOT_FOUND) { // cfind_thread() retornou erro
         return THREAD_NOT_FOUND;
     }
-    if (filaIndicator == IN_READY_QUEUE) {  // cfind_thread() retornou que a thread esta na ready_queue
+    else if (filaIndicator == IN_RUNNING_QUEUE) { // cfind_thread() retornou a própria thread executando, e a cjoin não pode bloquear a si mesmo
+        return IN_RUNNING_QUEUE_ERROR;
+    }
+    else if (filaIndicator == IN_READY_QUEUE) { // cfind_thread() retornou que a thread esta na ready_queue
         filaRef = &ready_queue;
     }
-    else {                                  // cfind_thread() retornou que a thread esta na blocked_queue
+    else if (filaIndicator == IN_BLOCKED_QUEUE) { // cfind_thread() retornou que a thread esta na blocked_queue
         filaRef = &blocked_queue;
     }
     
-    candidate_thread = cpop_thread(filaRef, tid);   // Pop da thread na sua respectiva lista
+    candidate_thread = cpop_thread(filaRef, tid, 0); // Pop da thread na sua respectiva lista
 
-    if (candidate_thread->d_tid != -1) {            // Se a thread já esta bloqueando, retorna THREAD_ALREADY_BLOCKING
-        AppendFila2(filaRef, candidate_thread);
+    if (candidate_thread->d_tid != -1) { // Se a thread já esta bloqueando, retorna THREAD_ALREADY_BLOCKING
         return THREAD_ALREADY_BLOCKING;
     }
 
-    candidate_thread->d_tid = running_queue->tid;   // Informamos que a thread do request agora esta bloqueando uma thread
-    running_queue->state = PROCST_BLOQ;             // running_queue fica bloqueada
+    candidate_thread->d_tid = running_queue->tid;// Informamos que a thread do request agora esta bloqueando uma thread
 
-    AppendFila2(filaRef, candidate_thread);         // Devolvemos a thread do request para sua fila
-
-    tcb_aux = running_queue; // Acho que precisa (??)
-
-    swapcontext(&tcb_aux->context, &schedulerContext);
+    running_queue->state = PROCST_BLOQ; // running_queue fica bloqueada
+    swapcontext(&running_queue->context, &schedulerContext);
 
     return SUCCESS;
 
@@ -321,7 +321,7 @@ int csignal(csem_t *sem) {
         return EMPTY_QUEUE_ERROR;
     }
     else {
-        cpop_thread(&blocked_queue, tcb->tid);
+        cpop_thread(&blocked_queue, tcb->tid, 1);
         tcb->state = PROCST_APTO;
         AppendFila2(&ready_queue, tcb);
         return SUCCESS;
