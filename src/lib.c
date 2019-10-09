@@ -61,6 +61,7 @@ int cscheduler () {
     tcb = running_queue;
 
     if (tcb->state == PROCST_EXEC) {
+	stopTimer();
         tcb->state = PROCST_TERMINO;
         // Liberar threads esperando por essa thread via cjoin
     }
