@@ -8,7 +8,7 @@
 | Escalonamento de estado apto para executar (cscheduler) | Julia | S       | 
 | Inicialização da thread main (cmain_thread_init)        |       | N       | 
 | Criação de uma thread (ccreate)                         | Julia | S       |
-| Cedência  voluntária  da  CPU (cyield)                  | Teo   | N       | 
+| Cedência  voluntária  da  CPU (cyield)                  | Teo   | S       | 
 | Sincronização  de  término (cjoin)                      | Teo   | N       | 
 | Inicialização  de  semáforo (csem_init)                 | Fred  | S       | 
 | Solicitação de  recurso (cwait)                         | Fred  | S       | 
