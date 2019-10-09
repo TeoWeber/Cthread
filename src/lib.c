@@ -39,18 +39,18 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
         return NULL;
     }
     else {
-        TCB_t* tcb = GetAtIteratorFila2(pfila);
+        TCB_t* tcb = (TCB_t*)GetAtIteratorFila2(pfila);
         int max_prio = tcb->prio;
         NODE2* max_prio_it = pfila->it;
         while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
-            tcb = GetAtIteratorFila2(pfila);
+            tcb = (TCB_t*)GetAtIteratorFila2(pfila);
             if (tcb->prio < max_prio) {
                 max_prio = tcb->prio;
                 max_prio_it = pfila->it;
             }
         }
         pfila->it = max_prio_it;
-        tcb = GetAtIteratorFila2(pfila);
+        tcb = (TCB_t*)GetAtIteratorFila2(pfila);
         DeleteAtIteratorFila2(pfila);
         return tcb;
     }
@@ -129,58 +129,53 @@ int cmain_thread_init () {
 }
 
 int cfind_thread(int tid) {
-    if (running_queue->tid == tid)
+    if (running_queue->tid == tid) {
         return SUCCESS;
+    }
     else {
         TCB_t* tcb;
-        PFILA2 fila = &ready_queue;
-        FirstFila2(fila);
-        tcb = (TCB_t*)GetAtIteratorFila2(fila);
+        PFILA2 pfila;
         
-        while (tcb != NULL) {
-            if (tcb->tid == tid)
-                return SUCCESS;
-            else {
-                NextFila2(fila);
-                tcb = (TCB_t*)GetAtIteratorFila2(fila);
-            }
+        pfila = &ready_queue;
+        if (FirstFila2(pfila) == SUCCESS) {
+            do {
+                tcb = (TCB_t*)GetAtIteratorFila2(pfila);
+                if (tcb->tid == tid) {
+                    return SUCCESS;
+                }
+            } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
         }
 
-        fila = &blocked_queue;
-        FirstFila2(fila);
-        tcb = (TCB_t*)GetAtIteratorFila2(fila);
-
-        while (tcb != NULL) {
-            if (tcb->tid == tid)
-                return SUCCESS;
-            else {
-                NextFila2(fila);
-                tcb = (TCB_t*)GetAtIteratorFila2(fila);
-            }
-        }
+        pfila = &blocked_queue;
+        if (FirstFila2(pfila) == SUCCESS) {
+            do {
+                tcb = (TCB_t*)GetAtIteratorFila2(pfila);
+                if (tcb->tid == tid) {
+                    return SUCCESS;
+                }
+            } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
 
         return THREAD_NOT_FOUND;
     }
     // procura se a thread com o tid dado existe na ready_queue, running_queue ou blocked_queue
 }
 
-TCB_t* cpop_thread(PFILA2 queue, int tid) {
+TCB_t* cpop_thread(PFILA2 pfila, int tid) {
     TCB_t* tcb;
-    FirstFila2(queue);
-    tcb = (TCB_t*)GetAtIteratorFila2(queue);
 
-    while (tcb != NULL) {
-        if (tcb->tid == tid) {
-            DeleteAtIteratorFila2(queue);
-            return tcb;
-        }
-        else {
-            NextFila2(queue);
-            tcb = (TCB_t*)GetAtIteratorFila2(queue);
-        }
+    if (FirstFila2(pfila) != SUCCESS) {
+        return NULL;
     }
-
-    return tcb;
+    else {
+        do {
+            tcb = (TCB_t*)GetAtIteratorFila2(pfila);
+            if (tcb->tid == tid) {
+                DeleteAtIteratorFila2(pfila);
+                return tcb;
+            }
+        } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
+        return NULL;
+    }
 }
 
 int ccreate (void* (*start)(void*), void *arg, int prio) {
