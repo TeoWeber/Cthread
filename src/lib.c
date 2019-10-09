@@ -187,7 +187,10 @@ int cscheduler () {
 
 int ccreate (void* (*start)(void*), void *arg, int prio) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     TCB_t* tcb;
@@ -218,7 +221,10 @@ int ccreate (void* (*start)(void*), void *arg, int prio) {
 
 int cyield(void) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     TCB_t* tcb;
@@ -233,14 +239,15 @@ int cyield(void) {
 
 int cjoin(int tid) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     TCB_t* candidate_thread;
     int filaIndicator;
     PFILA2 filaRef;
-
-
 
     filaIndicator = cfind_thread(tid); // Informação com a fila da thread do request
 
@@ -275,7 +282,10 @@ int cjoin(int tid) {
 
 int csem_init(csem_t *sem, int count) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     if ((sem = (csem_t*)malloc(sizeof(csem_t))) == NULL) {
@@ -292,7 +302,10 @@ int csem_init(csem_t *sem, int count) {
 
 int cwait(csem_t *sem) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     if (sem->count > 0) {
@@ -314,7 +327,10 @@ int cwait(csem_t *sem) {
 
 int csignal(csem_t *sem) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
     sem->count++;
@@ -332,7 +348,10 @@ int csignal(csem_t *sem) {
 
 int cidentify (char *name, int size) {
     if (!main_thread) {
-        cmain_thread_init();
+        int cmain_thread_init_flag = cmain_thread_init();
+        if (cmain_thread_init_flag != SUCCESS) {
+            return cmain_thread_init_flag;
+        }
     }
 
 	char* grupo = "Astelio Jose Weber (283864)\nFrederico Schwartzhaupt (304244)\nJulia Violato (290185)";
