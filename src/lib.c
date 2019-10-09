@@ -24,6 +24,7 @@
 #define RESERVED_TID_ERROR -4
 #define MALLOC_ERROR -5
 #define THREAD_NOT_FOUND -6
+#define NOT_IMPLEMENTED_FLAG -9
 
 int main_thread = 0;
 int next_tid_available = 0;
@@ -226,8 +227,10 @@ int cjoin(int tid) {
         cmain_thread_init();
     }
 
+    return NOT_IMPLEMENTED_FLAG;
+
     if (cfind_thread(tid) == THREAD_NOT_FOUND)
-        return -1;
+        return THREAD_NOT_FOUND;
 
 	
 }
