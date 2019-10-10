@@ -37,7 +37,7 @@ TCB_t* cmax_prio_pop (PFILA2 pfila) {
         TCB_t* tcb = (TCB_t*)GetAtIteratorFila2(pfila);
         unsigned int max_prio = (unsigned int)tcb->prio;
         NODE2* max_prio_it = pfila->it;
-        while (NextFila2(pfila) != NXTFILA_ENDQUEUE) {
+        while (NextFila2(pfila) != -NXTFILA_ENDQUEUE) {
             tcb = (TCB_t*)GetAtIteratorFila2(pfila);
             if ((unsigned int)tcb->prio < max_prio) {
                 max_prio = (unsigned int)tcb->prio;
@@ -66,7 +66,7 @@ int cfind_thread(int tid) {
                 if (tcb->tid == tid) {
                     return IN_READY_QUEUE;
                 }
-            } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
+            } while (NextFila2(pfila) != -NXTFILA_ENDQUEUE);
         }
 
         pfila = &blocked_queue;
@@ -76,7 +76,7 @@ int cfind_thread(int tid) {
                 if (tcb->tid == tid) {
                     return IN_BLOCKED_QUEUE;
                 }
-            } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
+            } while (NextFila2(pfila) != -NXTFILA_ENDQUEUE);
 
         return THREAD_NOT_FOUND_ERROR;
     	}
@@ -100,7 +100,7 @@ TCB_t* cpop_thread(PFILA2 pfila, int tid, int booleano) {
                 }
                 return tcb;
             }
-        } while (NextFila2(pfila) != NXTFILA_ENDQUEUE);
+        } while (NextFila2(pfila) != -NXTFILA_ENDQUEUE);
         return NULL;
     }
 }
