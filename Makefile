@@ -16,11 +16,11 @@ INC_DIR=./include
 BIN_DIR=./bin
 SRC_DIR=./src
 
-all: lib
-	ar crs $(LIB_DIR)/libcthread.a $(BIN_DIR)/*.o
+all: lib.o
+	ar -rv $(LIB_DIR)/libcthread.a $(BIN_DIR)/*.o
 
-lib:
-	$(CC) -c $(SRC_DIR)/lib.c -o $(BIN_DIR)/lib.o -Wall
+lib.o:
+	$(CC) -c $(SRC_DIR)/lib.c -o $(BIN_DIR)/$@ -Wall -Wextra -O2
 
 clean:
-	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
+	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/lib.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
